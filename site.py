@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify, render_template
-from flask import app, safe_join, send_from_directory
+from flask import safe_join, send_from_directory
 from flask.ext.mail import Mail, Message
-from pyslack import SlackClient
+from util import get_mail
+#from pyslack import SlackClient
 
 app = Flask(__name__)
 
-slack_token = ""
-
-slack_client = SlackClient(slack_token)
+#slack_token = ""
+#slack_client = SlackClient(slack_token)
 
 
 @app.route('/<any(css, img, js, sound):folder>/<path:filename>')
@@ -19,6 +19,7 @@ def toplevel_static(folder, filename):
     cache_timeout = app.get_send_file_max_age(filename)
     return send_from_directory(app.static_folder, filename,
                                cache_timeout=cache_timeout)
+
 
 @app.route('/', methods = ['GET'])
 def main_page():
@@ -42,7 +43,13 @@ def contact():
 
     print name, phone, email, message
 
-    slack_client.chat_post_message('#site_contact', content, username=email)
+    #slack_client.chat_post_message('#site_contact', content, username=email)
+
+    msg = Message("Site contact: mynewsite.com",
+        sender='utility_email@gmail.com',
+        recipients=['actual_email@gmail.com'])
+    msg.body = content
+    mail.send(msg)
 
     return str(200)
 
